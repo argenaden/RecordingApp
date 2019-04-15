@@ -37,9 +37,13 @@ import android.widget.Toast;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import pub.devrel.easypermissions.EasyPermissions;
@@ -84,13 +88,13 @@ public class MainActivity extends AppCompatActivity {
 
     static int p = 0;
     static long endTime;
-    LocationManager locManager;
-    LocationListener li;
 
     LocationService myService;
     static boolean status;
     LocationManager locationManager;
     static ArrayList<Integer> speed = new ArrayList<>();
+
+    private boolean startRecordAgain = true;
 
 
     private ServiceConnection sc = new ServiceConnection() {
@@ -205,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
     private void initLayout() {
 
         mainLayout = (LinearLayout) this.findViewById(R.id.record_layout);
-        //mainLayout = (LinearLayout) this.findViewById(R.id.recorder);
 
         recordButton = (Button) findViewById(R.id.recorder_control);
         recordButton.setText(R.string.start_recoding);
@@ -232,13 +235,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecorder() {
-        String ffmpeg_link = Environment.getExternalStorageDirectory() + "/test" + counter + ".flv";
+        String ffmpeg_link = Environment.getExternalStorageDirectory() + "/video" + counter + ".flv";
         Log.w(LOG_TAG,"initRecorder");
 
-        // region
         yuvImage = new Frame(imageWidth, imageHeight, Frame.DEPTH_UBYTE, 2);
         Log.d(LOG_TAG, "IplImage.create");
-        // endregion
 
         recorder = new FFmpegFrameRecorder(ffmpeg_link, imageWidth, imageHeight, 1);
         Log.v(LOG_TAG, "FFmpegFrameRecorder: " + ffmpeg_link + " imageWidth: " + imageWidth + " imageHeight " + imageHeight);
@@ -277,21 +278,39 @@ public class MainActivity extends AppCompatActivity {
                     stopRecord();
                     Log.w(LOG_TAG, "Stop Button Pushed");
                     recordButton.setText("Start");
+
+                    //writing to a file - time, speed.value ,face.value, head pose.value
+                    try {
+                        //File files = new File(Environment.getExternalStorageDirectory(), "Speed.csv");
+                        File file = new File(Environment.getExternalStorageDirectory(), "Speed.txt");
+                        FileOutputStream fileOutput = new FileOutputStream(file);
+                        OutputStreamWriter outputStreamWriter=new OutputStreamWriter(fileOutput);
+                        outputStreamWriter.write(speed.toString());
+                        outputStreamWriter.flush();
+                        fileOutput.getFD().sync(); //to ensure that data buffered is written to phone's storage
+                        outputStreamWriter.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //checking for speed value
                     for (int spd : speed) {
-                        Toast.makeText(getApplicationContext(), "current speed" + spd,Toast.LENGTH_LONG).show();
-                        if (spd == 0) {
-                            Log.w(LOG_TAG, "Start Button Pushed");
-                            recordButton.setText("Stop");
-                            speed = new ArrayList<>();
-                            counter++;
-                            startRecord();
+                        Log.w(LOG_TAG, "current speed: " +  spd + "  km/hr");
+                        if (spd > 0) {
+                            startRecordAgain = false;
                             break;
                         }
                     }
+                    if (startRecordAgain) {
+                        Log.w(LOG_TAG, "Start Button Pushed");
+                        recordButton.setText("Stop");
+                        speed = new ArrayList<>();
+                        counter++;
+                        startRecord();
+                    }
                 }
-            //}, 10000);
-        }, 60000);
-
+            }, 10000); //milliseconds
+        //}, 60000);
         } catch (FFmpegFrameRecorder.Exception e) {
             e.printStackTrace();
         }
@@ -346,7 +365,6 @@ public class MainActivity extends AppCompatActivity {
     //---------------------------------------------
     // audio thread, gets and encodes audio data
     //---------------------------------------------
-
 
 
     class AudioRecordRunnable extends Thread {
@@ -445,8 +463,6 @@ public class MainActivity extends AppCompatActivity {
 
                 bitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ALPHA_8);
 
-
-
                 camera.startPreview();
                 previewRunning = true;
             }
@@ -471,7 +487,6 @@ public class MainActivity extends AppCompatActivity {
             imageWidth = currentParams.getPreviewSize().width;
             imageHeight = currentParams.getPreviewSize().height;
             frameRate = currentParams.getPreviewFrameRate();
-
 
             yuvImage = new Frame(imageWidth, imageHeight, Frame.DEPTH_UBYTE, 2);
 

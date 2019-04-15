@@ -7,18 +7,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="525dp"
-        android:layout_centerInParent="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="0dp"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
+
         <ImageView
-            android:layout_width="268dp"
-            android:layout_height="295dp"
-            android:src="@drawable/ic_1" />
+            android:layout_width="291dp"
+            android:layout_height="291dp"
+            android:background="@drawable/image_shape"
+            android:src="@drawable/ic_1"
+          />
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:text="@string/slide_2_title"
             android:textColor="@android:color/white"
             android:textSize="@dimen/slide_title"
@@ -26,7 +33,7 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="72dp"
             android:layout_marginTop="20dp"
             android:paddingLeft="@dimen/desc_padding"
             android:paddingRight="@dimen/desc_padding"

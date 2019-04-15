@@ -12,7 +12,10 @@
                     android:layout_marginTop="@dimen/padding_medium"
                     android:fontFamily="sans-serif"
                     android:padding="@dimen/padding_medium"
-                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    android:background="@drawable/button_shape"
                     />
+                   <!-- android:textColor="@color/colorPrimary"-->
+
 
 </LinearLayout>
