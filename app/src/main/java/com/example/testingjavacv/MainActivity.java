@@ -30,6 +30,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -45,6 +46,7 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -88,16 +90,25 @@ public class MainActivity extends AppCompatActivity {
 
     static int p = 0;
     static long endTime;
+    static String f1 = "speed.csv";
+    static String f2 = "speed.txt";
+
 
     LocationService myService;
     static boolean status;
     LocationManager locationManager;
     static ArrayList<Integer> speed = new ArrayList<>();
+    @SuppressLint("UseSparseArrays")
+    HashMap<Integer, Integer> speed_info = new HashMap<>();
+
+    HashMap<Float, Integer> face_values = new HashMap<>();
+
 
     private boolean startRecordAgain = true;
-
+    private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
 
     private ServiceConnection sc = new ServiceConnection() {
+
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             LocationService.LocalBinder binder = (LocationService.LocalBinder) service;
@@ -112,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     void bindService() {
-        if (status == true)
+
+        if (status)
             return;
         Intent i = new Intent(getApplicationContext(), LocationService.class);
         bindService(i, sc, BIND_AUTO_CREATE);
@@ -121,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void unbindService() {
-        if (status == false)
+        if (!status)
             return;
         Intent i = new Intent(getApplicationContext(), LocationService.class);
         unbindService(sc);
@@ -130,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (status == false)
+        if (!status)
             super.onBackPressed();
         else
             moveTaskToBack(true);
@@ -177,7 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 initLayout();
                 init = true;
             }
-        } else {
+        }
+        else {
             Toast.makeText(this, "Please, allow all permissions in app settings", Toast.LENGTH_LONG).show();
         }
 
@@ -201,12 +214,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (status == true)
+        if (status)
             unbindService();
         recording = false;
     }
 
     private void initLayout() {
+
 
         mainLayout = (LinearLayout) this.findViewById(R.id.record_layout);
 
@@ -215,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                view.startAnimation(buttonClick);
+
                 if (!recording) {
                     startRecord();
                     Log.w(LOG_TAG, "Start Button Pushed");
@@ -273,22 +289,34 @@ public class MainActivity extends AppCompatActivity {
             audioThread.start();
 
             new Handler().postDelayed(new Runnable() {
+                @SuppressLint("UseSparseArrays")
                 @Override
                 public void run() {
                     stopRecord();
                     Log.w(LOG_TAG, "Stop Button Pushed");
                     recordButton.setText("Start");
 
-                    //writing to a file - time, speed.value ,face.value, head pose.value
+                    //writing to a file - time, speed.value ,face.value
                     try {
-                        //File files = new File(Environment.getExternalStorageDirectory(), "Speed.csv");
-                        File file = new File(Environment.getExternalStorageDirectory(), "Speed.txt");
+
+                        File a = new File(Environment.getExternalStorageDirectory(), f1);
+                        FileOutputStream fileOut = new FileOutputStream(a);
+                        OutputStreamWriter outputWriter = new OutputStreamWriter(fileOut);
+                        outputWriter.write(speed_info.toString());
+                        outputWriter.flush();
+                        fileOut.getFD().sync();
+                        outputWriter.close();
+
+                        ////////////////////////////////////////////////////////////////////
+
+                        File file = new File(Environment.getExternalStorageDirectory(), f2);
                         FileOutputStream fileOutput = new FileOutputStream(file);
                         OutputStreamWriter outputStreamWriter=new OutputStreamWriter(fileOutput);
                         outputStreamWriter.write(speed.toString());
                         outputStreamWriter.flush();
-                        fileOutput.getFD().sync(); //to ensure that data buffered is written to phone's storage
+                        fileOutput.getFD().sync();
                         outputStreamWriter.close();
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -305,6 +333,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.w(LOG_TAG, "Start Button Pushed");
                         recordButton.setText("Stop");
                         speed = new ArrayList<>();
+                        //speed_info = new HashMap<>();
+                        //speed_info.put((int) System.currentTimeMillis(), speed.get(counter));
                         counter++;
                         startRecord();
                     }
@@ -322,7 +352,7 @@ public class MainActivity extends AppCompatActivity {
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             return;
         }
-        if (status == false)
+        if (!status)
             bindService();
     }
 
@@ -342,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
             recorder = null;
         }
 
-        if (status == true)
+        if (status)
             unbindService();
         p = 0;
     }
@@ -476,8 +506,6 @@ public class MainActivity extends AppCompatActivity {
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             Log.v(LOG_TAG,"Surface Changed: width " + width + " height: " + height);
 
-
-
             // Get the current parameters
             Camera.Parameters currentParams = camera.getParameters();
             Log.v(LOG_TAG,"Preview Framerate: " + currentParams.getPreviewFrameRate());
@@ -520,7 +548,6 @@ public class MainActivity extends AppCompatActivity {
                 ((ByteBuffer)yuvImage.image[0].position(0)).put(data);
                 // endregion
 
-
                 try {
 
                     // Get the correct time
@@ -546,7 +573,6 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
 
             showGPSDisabledAlertToUser();
         }

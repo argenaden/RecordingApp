@@ -15,11 +15,11 @@
 
 
     <string name="slide_1_title">Genesislab</string>
-    <string name="slide_1_desc">   All you need to do:   \n  \n &#8226; Enter Your Name <br /> \n \n &#8226; Camera Set Up<br /> \n  \n&#8226; Start Recording <br /> </string>
+    <string name="slide_1_desc">    \n &#8226; Enter your Name <br /> \n \n &#8226;Set up your Camera<br /> \n  \n&#8226; Start Recording <br /> </string>
     <string name="hint"> PLease, enter your name </string>
 
     <string name="slide_2_title">Camera Set Up</string>
-    <string name="slide_2_desc">Please make sure that you set up phone camera well so that face can be seen, like in the picture</string>
+    <string name="slide_2_desc">Please make sure that you set up camera well so that all face can be seen </string>
 
     <string name="slide_3_title">Thank you</string>
     <string name="slide_3_desc">We highly appreciate your cooperation</string>
@@ -30,6 +30,12 @@
     <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
     <string name="play_again">Play Again</string>
 
-    <string name="selection"> Please select your option </string>
+    <string name="selection"> Please Select your Option: </string>
+    <string name= "or"> OR </string>
+    <string name="upload">Upload</string>
+    <string name="record">Record</string>
 
+
+
+    <string name="no_name">You did not enter a username </string>
 </resources>

@@ -15,47 +15,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectionActivity extends AppCompatActivity {
 
-    private Button recordBtn, uploadButton;
-    private List<String> list;
+    private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.6F);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selection);
 
-        recordBtn = (Button) findViewById(R.id.record);
-        uploadButton = (Button) findViewById(R.id.upload);
+        Button recordBtn = (Button) findViewById(R.id.record);
+        Button uploadButton = (Button) findViewById(R.id.upload);
 
         recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*LocationManager locationManager = (LocationManager) SelectionActivity.this.getSystemService(Context.LOCATION_SERVICE);
-                LocationListener locationListener = new LocationListener() {
-                    public void onLocationChanged(Location location) {
-                        location.getLatitude();
-                        Toast.makeText(SelectionActivity.this, "Current speed:" + location.getSpeed(), Toast.LENGTH_SHORT).show();
-                    }
+                v.startAnimation(buttonClick);
 
-                    public void onStatusChanged(String provider, int status, Bundle extras) { }
-                    public void onProviderEnabled(String provider) { }
-                    public void onProviderDisabled(String provider) { }
-                };
-                if (ActivityCompat.checkSelfPermission(SelectionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SelectionActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                */
                 startActivity(new Intent(SelectionActivity.this, MainActivity.class));
             }
         });
@@ -63,6 +51,7 @@ public class SelectionActivity extends AppCompatActivity {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.startAnimation(buttonClick);
                 Intent chooser = new Intent(Intent.ACTION_GET_CONTENT);
                 Uri uri = Uri.parse(Environment.getDownloadCacheDirectory().getPath().toString());
                 chooser.addCategory(Intent.CATEGORY_OPENABLE);
@@ -70,6 +59,7 @@ public class SelectionActivity extends AppCompatActivity {
                 chooser.setDataAndType(uri, "*/*");
                 try {
                     startActivityForResult(chooser, 12);
+
                 }
                 catch (android.content.ActivityNotFoundException ex) {
                     Toast.makeText(SelectionActivity.this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
@@ -82,6 +72,7 @@ public class SelectionActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK) {
+            List<String> list;
             if(data.getClipData() != null) {
                 list = new ArrayList<>();
                 int count = data.getClipData().getItemCount();

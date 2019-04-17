@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,7 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button mButton;
     private EditText mEditText;
     public static final String PREFS_NAME = "MyPrefsFile";
-
+    private AlphaAnimation buttonClick = new AlphaAnimation(0F, 06F);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,17 +41,17 @@ public class LoginActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                view.startAnimation(buttonClick);
                 EnteredText = mEditText.getText().toString();
                 SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0); // 0 - for private mode
                 SharedPreferences.Editor editor = settings.edit();
 
                 if(EnteredText.matches("")) {
                     Toast.makeText(getApplicationContext(), "You did not enter a username", Toast.LENGTH_SHORT).show();
-                    return;
 
                 }else{
                     editor.putBoolean("hasLoggedIn", true);
-                    editor.commit();
+                    editor.apply();
                     startActivity(new Intent( new Intent(LoginActivity.this, SelectionActivity.class)));
                     finish();
                 }
