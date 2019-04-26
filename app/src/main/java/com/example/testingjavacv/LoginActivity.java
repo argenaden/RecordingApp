@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if(hasLoggedIn)
         {
-            startActivity(new Intent( new Intent(LoginActivity.this, MainActivity.class)));
+            startActivity(new Intent( new Intent(LoginActivity.this, SelectionActivity.class)));
             finish();
         }
 
@@ -49,11 +49,10 @@ public class LoginActivity extends AppCompatActivity {
                     return;
 
                 }else{
-
-                    startActivity(new Intent( new Intent(LoginActivity.this, MainActivity.class)));
-                    finish();
                     editor.putBoolean("hasLoggedIn", true);
                     editor.commit();
+                    startActivity(new Intent( new Intent(LoginActivity.this, SelectionActivity.class)));
+                    finish();
                 }
             }
 
