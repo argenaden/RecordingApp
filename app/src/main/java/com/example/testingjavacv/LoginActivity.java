@@ -51,7 +51,10 @@ public class LoginActivity extends AppCompatActivity {
                 }else{
                     editor.putBoolean("hasLoggedIn", true);
                     editor.commit();
-                    startActivity(new Intent( new Intent(LoginActivity.this, SelectionActivity.class)));
+                    Intent launch =  new Intent(LoginActivity.this, SelectionActivity.class);
+                    launch.putExtra("returnData", EnteredText);
+                    //startActivity(launch);
+                    startActivity(new Intent(launch));
                     finish();
                 }
             }

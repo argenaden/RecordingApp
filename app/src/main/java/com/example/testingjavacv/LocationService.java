@@ -95,6 +95,7 @@ public class LocationService extends Service implements
 
         //Calling the method below updates the  live values of distance and speed to the TextViews.
         updateUI();
+
         //calculating the speed with getSpeed method it returns speed in m/s so we are converting it into kmph
         speed = location.getSpeed() * 18 / 5;
 
@@ -119,17 +120,18 @@ public class LocationService extends Service implements
         if (MainActivity.p == 0) {
             distance = distance + (lStart.distanceTo(lEnd) / 1000.00);
             MainActivity.endTime = System.currentTimeMillis();
+
             long diff = MainActivity.endTime - MainActivity.startTime;
+
             diff = TimeUnit.MILLISECONDS.toMinutes(diff);
+
             if (speed > 0.0)
                 MainActivity.speed.add(Integer.valueOf(new DecimalFormat("#.##").format(speed)));
             else
                 MainActivity.speed.add(0);
 
             lStart = lEnd;
-
         }
-
     }
 
     @Override
